@@ -4,7 +4,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const containers = document.querySelectorAll('.video-container');
     let currentVideoIndex = 0;
 
-    // Video Control System
+    // Like System
+    class LikeSystem {
+        constructor() {
+            this.initializeLikes();
+        }
+
+        initializeLikes() {
+            document.querySelectorAll('.like-button').forEach(button => {
+                const container = button.closest('.video-container');
+                const videoId = container.dataset.videoId;
+                const likeCount = container.querySelector('.like-count');
+
+                // Initialize from localStorage or default value
+                const initialLikes = this.getLikes(videoId);
+                const isLiked = this.isLiked(videoId);
+
+                // Update display
+                likeCount.textContent = initialLikes;
+                if (isLiked) {
+                    button.classList.add('liked');
+                }
+
+                // Add click handler
+                button.addEventListener('click', () => this.toggleLike(videoId, button));
+            });
+        }
+
+        getLikes(videoId) {
+            const stored = localStorage.getItem(`video_${videoId}_likes`);
+            return stored ? parseInt(stored) : parseInt(this.getInitialLikes(videoId));
+        }
+
+        getInitialLikes(videoId) {
+            const button = document.querySelector(`[data-video-id="${videoId}"] .like-button`);
+            return button.dataset.likes || "0";
+        }
+
+        isLiked(videoId) {
+            return localStorage.getItem(`video_${videoId}_liked`) === 'true';
+        }
+
+        toggleLike(videoId, button) {
+            const container = button.closest('.video-container');
+            const likeCount = container.querySelector('.like-count');
+            const currentLikes = this.getLikes(videoId);
+            const isCurrentlyLiked = this.isLiked(videoId);
+
+            // Toggle like state
+            const newLikes = isCurrentlyLiked ? currentLikes - 1 : currentLikes + 1;
+
+            // Update localStorage
+            localStorage.setItem(`video_${videoId}_likes`, newLikes.toString());
+            localStorage.setItem(`video_${videoId}_liked`, (!isCurrentlyLiked).toString());
+
+            // Update display
+            likeCount.textContent = newLikes;
+            button.classList.toggle('liked');
+
+            // Add animation
+            button.classList.remove('like-animation');
+            void button.offsetWidth; // Trigger reflow
+            button.classList.add('like-animation');
+
+            // Optional: Log for backend integration
+            console.log('Like update:', {
+                videoId,
+                likes: newLikes,
+                isLiked: !isCurrentlyLiked,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
+    // Video Controller Class
     class VideoController {
         constructor(container) {
             this.container = container;
@@ -87,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoControllers = Array.from(containers).map(container =>
         new VideoController(container)
     );
+
+    // Initialize like system
+    const likeSystem = new LikeSystem();
 
     // Navigation System
     const navigateTo = (index) => {

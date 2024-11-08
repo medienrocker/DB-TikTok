@@ -38,6 +38,7 @@ body {
     display: flex;
     justify-content: center;
     background: black;
+    padding: 0px;
 }
 
 .video-container.active {
@@ -53,6 +54,8 @@ video {
     height: 100%;
     width: auto;
     object-fit: contain;
+    border-radius: 20px;
+    background: black;
 }
 
 /* Overlay styles */
@@ -91,6 +94,7 @@ video {
     pointer-events: auto;
 }
 
+/* Like button styles */
 .like-button {
     background: none;
     border: none;
@@ -100,6 +104,7 @@ video {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.8;
+    transform: scale(1);
 }
 
 .like-button.liked {
@@ -255,6 +260,7 @@ video {
     }
 }
 
+/* Like animation */
 .like-animation {
     animation: likePopAndBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
